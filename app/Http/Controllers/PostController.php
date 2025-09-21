@@ -9,10 +9,13 @@ class PostController extends Controller
 {
     public function getPosts(Request $request)
     {
-        $posts = Post::all();
-        $returnData = [];
+        $posts_per_page = 2;
+
+
+        $posts = Post::paginate($posts_per_page);
+        $pagesPosts = [];
         foreach ($posts as $post) {
-            $returnData[] = [
+            $pagesPosts[] = [
                 'id' => $post->id,
                 'title' => $post->title,
                 'createdAt' => $post->createdAt,
@@ -23,6 +26,11 @@ class PostController extends Controller
                 'slug' => $post->slug,
             ];
         }
-        return $returnData;
+
+
+        return [
+            'posts' => $pagesPosts,
+            'page' => $posts->currentPage(),
+        ];
     }
 }
