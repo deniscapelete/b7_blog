@@ -1,68 +1,16 @@
 <?php
 
-use App\Models\User;
+use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::post('/auth/signup', function (Request $request) {
-    //Validar os dados recebidos
-
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'email' => 'required|string|email|max:255|unique:users',
-        'password' => 'required|string|min:6',
-    ]);
-
-    $user = User::create([
-        'name' => $request->name,
-        'email' => $request->email,
-        'password' => Hash::make($request->password),
-    ]);
-
-    $returnData = [];
-    $returnData['user'] = $user;
-    $returnData['token'] = $user->createToken($user->id . '-' . $user->email)->plainTextToken;
-
-    return $returnData;
+// Auth
+Route::prefix('auth')->group(function () {
+    Route::post('/signup', [AuthController::class, 'signup']);
+    Route::post('/signin', [AuthController::class, 'signin']);
+    Route::post('/validate', [AuthController::class, 'validate'])->middleware('auth:sanctum');
 });
-
-Route::post('auth/signin', function (Request $request) {
-    $request->validate([
-        'email' => 'required|string|email',
-        'password' => 'required|string|min:6'
-    ]);
-
-    $user = User::where('email', $request->email)->first();
-
-    if (!$user || !Hash::check($request->password, $user->password)) {
-        return response()->json(['error' => 'falha na autenticação'], 401);
-    }
-
-    $token = $user->createToken($user->id . '-' . $user->email)->plainTextToken;
-
-    return response()->json([
-        'user' => [
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-        ],
-        'token' => $token,
-    ]);
-});
-
-Route::post('/auth/verify', function (Request $request) {
-    $user = $request->user();
-
-    return response()->json([
-        'user' => [
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-        ],
-    ]);
-})->middleware('auth:sanctum');

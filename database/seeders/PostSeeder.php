@@ -16,7 +16,7 @@ class PostSeeder extends Seeder
         Post::create([
             'title' => 'Post 1',
             'slug' => 'slug-de-teste',
-            'content' => 'Post 1 content',
+            'body' => 'Post 1 content',
             'cover' => 'https://picsum.photos/id/10/200/300',
             'status' => 'PUBLISHED',
             'authorId' => 1,
