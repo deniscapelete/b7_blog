@@ -64,3 +64,14 @@ authorization:bearer <token>
 ##post_tags
 - postId
 - tagId
+
+## Página
+
+-- Listagem de Posts
+
+-- GET
+-- /api/posts
+-- Resposta:
+posts: [
+    {id, title, createdAt, cover, authorName, tags (separado por virgula), body, slug}
+]

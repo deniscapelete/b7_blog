@@ -21,7 +21,6 @@ return new class extends Migration
             $table->timestamp('createdAt')->useCurrent();
             $table->timestamp('updatedAt')->useCurrentOnUpdate();
             $table->enum('status', ['PUBLISHED', 'DRAFT'])->default('DRAFT');
-            $table->timestamps();
         });
     }
 
