@@ -5,8 +5,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 
-use function Laravel\Prompts\password;
-
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -31,4 +29,28 @@ Route::post('/auth/signup', function (Request $request) {
     $returnData['token'] = $user->createToken($user->id . '-' . $user->email)->plainTextToken;
 
     return $returnData;
+});
+
+Route::post('auth/signin', function (Request $request) {
+    $request->validate([
+        'email' => 'required|string|email',
+        'password' => 'required|string|min:6'
+    ]);
+
+    $user = User::where('email', $request->email)->first();
+
+    if (!$user || !Hash::check($request->password, $user->password)) {
+        return response()->json(['error' => 'falha na autenticação'], 401);
+    }
+
+    $token = $user->createToken($user->id . '-' . $user->email)->plainTextToken;
+
+    return response()->json([
+        'user' => [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+        ],
+        'token' => $token,
+    ]);
 });
