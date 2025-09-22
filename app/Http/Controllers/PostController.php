@@ -33,4 +33,26 @@ class PostController extends Controller
             'page' => $posts->currentPage(),
         ];
     }
+
+    public function getPost(string $slug)
+    {
+        $post = Post::where('slug', $slug)->first();
+
+        if (!$post) {
+            return response()->json(['error' => '404 Not found'], 404);
+        }
+
+        return [
+            'post' => [
+                'id' => $post->id,
+                'title' => $post->title,
+                'createdAt' => $post->createdAt,
+                'cover' => $post->cover,
+                'authorName' => $post->author->name,
+                'tags' => $post->tags->implode('name', ', '),
+                'body' => $post->body,
+                'slug' => $post->slug,
+            ]
+        ];
+    }
 }
