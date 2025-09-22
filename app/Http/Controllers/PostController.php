@@ -55,4 +55,20 @@ class PostController extends Controller
             ]
         ];
     }
+
+    public function getRelatedPosts(string $slug)
+    {
+        // Busca o post pelo slug
+        $post = Post::where('slug', $slug)->first();
+
+        // Se o post não existir, retorna 404
+        if (!$post) {
+            return response()->json(['error' => '404 Not found'], 404);
+        }
+
+        // Pegar as tags do post
+        return $post->tags->pluck('id');
+
+        // Buscar todos os posts que tenham pelo menos uma das tags
+    }
 }

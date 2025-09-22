@@ -18,3 +18,4 @@ Route::prefix('auth')->group(function () {
 
 Route::get('/posts', [PostController::class, 'getPosts']);
 Route::get('posts/{slug}', [PostController::class, 'getPost']);
+Route::get('posts/{slug}/related', [PostController::class, 'getRelatedPosts']);
