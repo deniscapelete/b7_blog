@@ -67,8 +67,32 @@ class PostController extends Controller
         }
 
         // Pegar as tags do post
-        return $post->tags->pluck('id');
+        $tagsList = $post->tags->pluck('id');
 
         // Buscar todos os posts que tenham pelo menos uma das tags
+        $relatedPosts = Post::where('id', '!=', $post->id)
+            ->whereHas('tags', function ($query) use ($tagsList) {
+                // Aqui vai filtrar os posts que possuem algumas das tags do array $tagsList
+                $query->whereIn('tags.id', $tagsList);
+            })
+            ->limit(5)
+            ->get();
+
+        $returnPostData = $relatedPosts->map(function ($post) {
+            return [
+                'id' => $post->id,
+                'title' => $post->title,
+                'createdAt' => $post->createdAt,
+                'cover' => $post->cover,
+                'authorName' => $post->author->name,
+                'tags' => $post->tags->implode('name', ', '),
+                'body' => $post->body,
+                'slug' => $post->slug,
+            ];
+        });
+
+        return response()->json([
+            'posts' => $returnPostData,
+        ]);
     }
 }
