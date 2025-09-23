@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class AdminController extends Controller
 {
@@ -70,5 +71,28 @@ class AdminController extends Controller
         }
         $post->delete();
         return  response()->json(['message' => 'Post deleted successfully'], 200);
+    }
+
+    public function CreatePost(Request $request)
+    {
+        $user = $request->user();
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'body' => 'required|string',
+            'status' => 'in:DRAFT,PUBLISHED',
+            'tags' => 'string|max:255',
+        ]);
+
+        $post = new Post();
+        $post->title = $request->title;
+        $post->body = $request->body;
+
+        // Gerar slug com base no título do post
+        $post->slug = Str::slug($post->title) . '-' . time();
+
+        dd($post);
+
+
+        return response()->json(['message' => 'Post created successfully', 'post' => $post], 201);
     }
 }

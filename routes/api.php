@@ -29,12 +29,21 @@ Route::get('posts/{slug}/related', [PostController::class, 'getRelatedPosts']);
 
 // admin/posts (Pegar todos os posts, inclusive drafts com paginação)
 // admin/posts/{slug} (Pegar um único específico)
-// POST admin/posts (Criar um novo post)
-// PUT admin/posts/{slug} (Atualizar dados de um post específico)
 // Delete admin/*posts/{slug} (Deletar um post específico)
+
+// POST admin/posts (Criar um novo post)
+// - Slug vai ser gerado automaticamente e deve ser única no BD.
+// - O upload de arquivos tem que garantir que o arquivo seja uma imagem e não sobrescreva outro.
+// - as tags vem separadas por virgula.
+
+// PUT admin/posts/{slug} (Atualizar dados de um post específico)
+
 
 Route::prefix('admin')->middleware(('auth:sanctum'))->group(function () {
     Route::get('/posts', [AdminController::class, 'getPosts']);
     Route::get('/posts/{slug}', [AdminController::class, 'getPost']);
+
     Route::delete('/posts/{slug}', [AdminController::class, 'deletePost']);
+
+    Route::post('/posts', [AdminController::class, 'createPost']);
 });
