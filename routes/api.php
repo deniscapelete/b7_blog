@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PostController;
 use Illuminate\Http\Request;
@@ -33,5 +34,5 @@ Route::get('posts/{slug}/related', [PostController::class, 'getRelatedPosts']);
 // Delete admin/*posts/{slug} (Deletar um post específico)
 
 Route::prefix('admin')->middleware(('auth:sanctum'))->group(function () {
-    // Criação das rotas.
+    Route::get('/posts', [AdminController::class, 'getPosts']);
 });
