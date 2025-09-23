@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
-use App\Models\User;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
@@ -30,10 +29,46 @@ class AdminController extends Controller
             ];
         }
 
-
         return [
             'posts' => $pagesPosts,
             'page' => $posts->currentPage(),
         ];
+    }
+
+    public function getPost(string $slug, Request $request)
+    {
+        $user = $request->user();
+
+        $post = Post::where(['slug' => $slug, 'authorId' => $user->id])->first();
+
+        if (!$post) {
+            return response()->json(['error' => '404 Not found'], 404);
+        }
+
+        return [
+            'post' => [
+                'id' => $post->id,
+                'title' => $post->title,
+                'createdAt' => $post->createdAt,
+                'cover' => $post->cover,
+                'authorName' => $post->author->name,
+                'tags' => $post->tags->implode('name', ', '),
+                'body' => $post->body,
+                'slug' => $post->slug,
+                'status' => $post->status,
+            ]
+        ];
+    }
+
+    public function deletePost(string $slug, Request $request)
+    {
+        $user = $request->user();
+
+        $post = Post::where(['slug' => $slug, 'authorId' => $user->id])->first();
+        if (!$post) {
+            return response()->json(['error' => '404 Not found'], 404);
+        }
+        $post->delete();
+        return  response()->json(['message' => 'Post deleted successfully'], 200);
     }
 }
