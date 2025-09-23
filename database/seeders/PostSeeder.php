@@ -38,7 +38,7 @@ class PostSeeder extends Seeder
             'slug' => 'slug3-de-teste',
             'body' => 'Post 3 content',
             'cover' => 'https://picsum.photos/id/10/200/300',
-            'status' => 'PUBLISHED',
+            'status' => 'DRAFT',
             'authorId' => 1,
         ]);
         $post3->tags()->attach([3, 4]);

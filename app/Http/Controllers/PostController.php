@@ -9,10 +9,10 @@ class PostController extends Controller
 {
     public function getPosts(Request $request)
     {
-        $posts_per_page = 2;
+        $posts_per_page = 10;
 
 
-        $posts = Post::paginate($posts_per_page);
+        $posts = Post::where('status', 'PUBLISHED')->paginate($posts_per_page);
         $pagesPosts = [];
         foreach ($posts as $post) {
             $pagesPosts[] = [
@@ -36,7 +36,7 @@ class PostController extends Controller
 
     public function getPost(string $slug)
     {
-        $post = Post::where('slug', $slug)->first();
+        $post = Post::where(['slug' => $slug, 'status' => 'PUBLISHED'])->first();
 
         if (!$post) {
             return response()->json(['error' => '404 Not found'], 404);
@@ -59,7 +59,7 @@ class PostController extends Controller
     public function getRelatedPosts(string $slug)
     {
         // Busca o post pelo slug
-        $post = Post::where('slug', $slug)->first();
+        $post = Post::where(['slug' => $slug, 'status' => 'PUBLISHED'])->first();
 
         // Se o post não existir, retorna 404
         if (!$post) {
@@ -73,7 +73,7 @@ class PostController extends Controller
         $relatedPosts = Post::where('id', '!=', $post->id)
             ->whereHas('tags', function ($query) use ($tagsList) {
                 // Aqui vai filtrar os posts que possuem algumas das tags do array $tagsList
-                $query->whereIn('tags.id', $tagsList);
+                $query->whereIn('tags.id', $tagsList)->where('posts.status', 'PUBLISHED');
             })
             ->limit(5)
             ->get();
