@@ -90,8 +90,27 @@ class AdminController extends Controller
         // Gerar slug com base no título do post
         $post->slug = Str::slug($post->title) . '-' . time();
 
+        if ($request->hasFile('cover')) {
+            $file = $request->file('cover');
+            if (!$file->isValid()) {
+            }
+
+            if (!in_array($file->getClientOriginalExtension(), ['png', 'jpg', 'gif'])) {
+                return response()->json(['error' => 'Invalid file type'], 422);
+            }
+
+            $filename = time() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads'), $filename);
+
+            $post->cover = env('APP_URL') . '/uploads/' . $filename;
+        }
         dd($post);
 
+        // Upload de Imagem (Cover)
+
+        // Subir a imagem para o servidor
+        // Garantir que a extensão seja jpg, png ou gif
+        // Garantir que o nome do arquivo seja único
 
         return response()->json(['message' => 'Post created successfully', 'post' => $post], 201);
     }
