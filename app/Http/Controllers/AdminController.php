@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -86,10 +87,20 @@ class AdminController extends Controller
         $post = new Post();
         $post->title = $request->title;
         $post->body = $request->body;
+        $post->authorId = $user->id;
+
+        if (!$request->has('status')) {
+            $post->status = 'DRAFT';
+        };
 
         // Gerar slug com base no título do post
         $post->slug = Str::slug($post->title) . '-' . time();
 
+        // Upload de Imagem (Cover)
+
+        // Subir a imagem para o servidor
+        // Garantir que a extensão seja jpg, png ou gif
+        // Garantir que o nome do arquivo seja único
         if ($request->hasFile('cover')) {
             $file = $request->file('cover');
             if (!$file->isValid()) {
@@ -104,14 +115,30 @@ class AdminController extends Controller
 
             $post->cover = env('APP_URL') . '/uploads/' . $filename;
         }
-        dd($post);
 
-        // Upload de Imagem (Cover)
+        $post->save();
 
-        // Subir a imagem para o servidor
-        // Garantir que a extensão seja jpg, png ou gif
-        // Garantir que o nome do arquivo seja único
+        if ($request->has('tags')) {
+            $tags = explode(',', $request->input('tags'));
+            foreach ($tags as $tag) {
+                $tag = trim($tag);
+                $tagModel = Tag::firstOrCreate(['name' => $tag]);
+                $post->tags()->attach($tagModel->id);
+            };
+        }
 
-        return response()->json(['message' => 'Post created successfully', 'post' => $post], 201);
+        return response()->json([
+            'post' => [
+                'id' => $post->id,
+                'title' => $post->title,
+                'createdAt' => $post->createdAt,
+                'cover' => $post->cover,
+                'authorName' => $post->author->name,
+                'tags' => $post->tags->implode('name', ', '),
+                'body' => $post->body,
+                'slug' => $post->slug,
+                'status' => $post->status,
+            ]
+        ], 201);
     }
 }
